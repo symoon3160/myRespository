@@ -38,6 +38,10 @@ if uploaded_normal and uploaded_fault:
     f_key = [k for k in mat_f.keys() if not k.startswith("__")][0]
     
     sig_n, sig_f = mat_n[n_key].ravel(), mat_f[f_key].ravel()
+    
+    # 두 신호의 길이를 최소값으로 맞춰서 FFT 축 불일치 방지
+    min_len = min(len(sig_n), len(sig_f))
+    sig_n, sig_f = sig_n[:min_len], sig_f[:min_len]
 
     # 1. 시간 영역 및 주파수 영역 비교
     col1, col2 = st.columns(2)
@@ -50,10 +54,11 @@ if uploaded_normal and uploaded_fault:
         st.pyplot(fig)
     with col2:
         st.subheader("주파수 영역 (FFT)")
-        n_samples = len(sig_n)
         yf_n = np.abs(rfft(sig_n))
         yf_f = np.abs(rfft(sig_f))
-        xf = rfftfreq(n_samples, 1/fs)
+        # 데이터 길이를 명확하게 지정하여 주파수 축 생성
+        xf = rfftfreq(min_len, 1/fs)
+        
         fig, ax = plt.subplots(figsize=(6, 3))
         ax.plot(xf, yf_n, label='Normal', alpha=0.5)
         ax.plot(xf, yf_f, label='Fault', alpha=0.5)
