@@ -3,15 +3,16 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import stats
-from scipy.fft import rfft, rfftfreq
 from scipy.io import loadmat
-import koreanize_matplotlib
+import matplotlib as mpl
+
+# --- 한글 폰트 설정 (koreanize-matplotlib 대신 설정) ---
+# 나눔 폰트가 설치되어 있지 않은 환경을 대비해 기본 폰트 설정
+plt.rcParams["axes.unicode_minus"] = False
+plt.rcParams['font.family'] = 'sans-serif' 
 
 # 페이지 설정
 st.set_page_config(page_title="설비 이상 진단 대시보드", layout="wide")
-
-# 스타일 설정
-plt.rcParams["axes.unicode_minus"] = False
 
 # --- 캐시된 데이터 로드 함수 ---
 @st.cache_data
@@ -30,7 +31,7 @@ def calculate_features(signal):
     }
 
 # --- 메인 화면 구성 ---
-st.title("⚙️ 공개 진동 데이터 기반 설비 이상 분석")
+st.title("⚙️ 설비 이상 분석 대시보드")
 
 with st.sidebar:
     st.header("1. 데이터셋 설정")
@@ -42,14 +43,12 @@ if uploaded_normal and uploaded_fault:
     mat_n = load_mat_data(uploaded_normal)
     mat_f = load_mat_data(uploaded_fault)
     
-    # 변수 선택 (간단히 첫 번째 키 사용 예시)
     n_key = [k for k in mat_n.keys() if not k.startswith("__")][0]
     f_key = [k for k in mat_f.keys() if not k.startswith("__")][0]
     
     normal_signal = mat_n[n_key].ravel()
     fault_signal = mat_f[f_key].ravel()
 
-    # 분석 시각화
     col1, col2 = st.columns(2)
     with col1:
         st.subheader("정상 파형")
@@ -62,14 +61,12 @@ if uploaded_normal and uploaded_fault:
         ax.plot(fault_signal[:1000])
         st.pyplot(fig)
 
-    # 특징값 비교
     st.header("3. 특징값 비교")
     feat_n = calculate_features(normal_signal)
     feat_f = calculate_features(fault_signal)
     df = pd.DataFrame([feat_n, feat_f], index=["정상", "이상"])
     st.table(df)
 
-    # 진단 로직
     st.header("4. 상태 진단 결과")
     threshold = 3 * feat_n["rms"]
     if feat_f["rms"] > threshold:
