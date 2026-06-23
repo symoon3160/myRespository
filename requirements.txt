@@ -1,4 +1,6 @@
 streamlit
 pandas
-gspread
-oauth2client
+numpy
+scipy
+matplotlib
+koreanize-matplotlib
