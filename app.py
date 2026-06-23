@@ -1,3 +1,4 @@
+%%writefile app.py
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -83,7 +84,7 @@ def window_features(signal, fs, window_sec=0.2, step_sec=0.1):
     step = int(fs * step_sec)
     rows = []
     # Ensure there's at least one full window to process
-    if len(signal) < window: 
+    if len(signal) < window:
         return pd.DataFrame() # Return empty DataFrame if signal is too short
 
     for start in range(0, len(signal) - window + 1, step):
@@ -110,7 +111,7 @@ def diagnose(row, rms_threshold, kurtosis_threshold, crest_threshold):
     return "정상", "-"
 
 
-# --- Streamlit App --- 
+# --- Streamlit App ---
 st.header("1. 데이터셋 선택 및 업로드")
 
 DATASET_NAME = st.text_input("데이터셋 명", "CWRU Bearing Dataset")
@@ -240,7 +241,7 @@ if normal_signal is not None and fault_signal is not None:
         st.subheader("이상 데이터 진단 결과 (상위 20개)")
         st.dataframe(diagnosis[["time_sec", "rms", "kurtosis", "crest_factor", "diagnosis", "reason"]].head(20))
         st.write("**진단 결과 분포:**")
-        st.dataframe(diagnosis["diagnosis"].value_counts().reset_index()))
+        st.dataframe(diagnosis["diagnosis"].value_counts().reset_index()) # Fixed: removed extra ')'
 
         st.markdown("--- ")
         st.header("7. CBM 관점의 의사결정 작성")
